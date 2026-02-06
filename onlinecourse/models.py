@@ -101,3 +101,33 @@ class Enrollment(models.Model):
 #class Submission(models.Model):
 #    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
 #    choices = models.ManyToManyField(Choice)
+
+# Question Model
+class Question(models.Model):
+    # Foreign key to Course
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    # Question Text
+    content = models.CharField(max_length=200)
+    # Question Grade
+    grade = models.IntegerField(max_length=50)
+
+    def __str__(self):
+        return "Question: " + self.content
+
+    # method to calculate if the learner gets the score of the question
+    # self refers to the current instance of the class (the question object).
+    # selected_ids is a list of IDs representing the choices the learner selected for this question.
+    def is_get_score(self, selected_ids):
+        # self.choice_set refers to all the choices (options) related to this question.
+        # .filter(is_correct=True) filters only the correct choices.
+        # .count() returns how many correct choices exist for this question.
+        all_answers = self.choice_set.filter(is_correct=True).count()
+        # .filter(is_correct=True, id__in=selected_ids) Only include choices that are correct and
+        # whose IDs are in the learner’s selected answers.
+        # .count() gives the number of correct choices the learner selected.
+        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
+        # Compares the total number of correct answers (all_answers) with the number of correct answers the learner selected (selected_correct).
+        if all_answers == selected_correct:
+            return True
+        else:
+            return False
