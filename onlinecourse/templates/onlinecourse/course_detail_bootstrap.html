@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     {% load static %}
+     {% load static %} <!-- Django template tag to load static files -->
+     
+    <!-- Bootstrap CSS for styling -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    
+    <!-- jQuery library (required for Bootstrap JS components) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+    <!-- Popper.js (used for tooltips, dropdowns in Bootstrap) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    
+    <!-- Bootstrap JS for interactive components -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <!-- Character encoding -->
     <meta charset="UTF-8">
 </head>
 
@@ -14,22 +24,29 @@
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <div class="navbar-header">
+                  <!-- Home link navigates to index page -->
                   <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
+                <!-- If user is logged in, show their name and logout button -->
                 <li>
                     <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
                     <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">Logout</a>
                 </li>
                 {% else %}
+                <!-- If user is not logged in, show login form -->
                 <li>
                     <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
-                        {% csrf_token %}
+                        {% csrf_token %} <!-- Security token for POST requests -->
                         <div class="input-group">
+                            <!-- Username input -->
                             <input type="text" class="form-control" placeholder="Username" name="username" >
-                            <input type="password" class="form-control" placeholder="Username" name="psw" >
+                            <!-- Password input -->
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
+                            <!-- Login button -->
                             <button class="btn btn-primary" type="submit">Login</button>
+                            <!-- Sign up link -->
                             <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
                         </div>
                     </form>
@@ -41,29 +58,41 @@
 
     <!-- Page content -->
     <div class="container-fluid">
+            <!-- Display course name -->
             <h2>{{ course.name }}</h2>
+            
+            <!-- Display lessons in card format -->
             <div class="card-columns-vertical">
                 {% for lesson in course.lesson_set.all %}
                     <div class="card mt-1">
+                        <!-- Lesson header with order and title -->
                         <div class="card-header"><h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5></div>
+                        <!-- Lesson content -->
                         <div class="card-body">{{lesson.content}}</div>
                     </div>
                 {% endfor %}
             </div>
-            <!-- Course detail template changes go here -->
+            
+            <!-- Exam section (only visible if user is logged in) -->
             {% if user.is_authenticated %}
             <br>
+            <!-- Button to toggle exam section -->
             <button class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>
+            
+            <!-- Collapsible exam form -->
             <div id="exam" class="collapse">
                 <form id="questionform" action="{% url 'onlinecourse:submit' course.id %}" method="POST">
                     {% for question in course.question_set.all %}
                     <div class="card mt-1">
+                        <!-- Question content -->
                         <div class="card-header"><h5>{{ question.content }}</h5></div>
                         {% csrf_token %}
                         <div class="form-group">
+                            <!-- Loop through choices for each question -->
                             {% for choice in question.choice_set.all %}
                             <div class="form-check">
                                 <label class="form-check-label">
+                                    <!-- Checkbox for each choice -->
                                     <input type="checkbox" name="choice_{{choice.id}}"
                                         class="form-check-input" id="{{ choice.id }}"
                                         value="{{ choice.id }}">{{ choice.content }}
